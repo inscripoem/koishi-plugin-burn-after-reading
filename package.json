@@ -1,0 +1,22 @@
+{
+  "name": "koishi-plugin-burn-after-reading",
+  "description": "阅后即焚，群管插件，开启状态下会定时撤回用户发送的所有消息以保护隐私",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "dist"
+  ],
+  "license": "MIT",
+  "scripts": {},
+  "keywords": [
+    "chatbot",
+    "koishi",
+    "plugin"
+  ],
+  "devDependencies": {},
+  "peerDependencies": {
+    "koishi": "^4.18.7"
+  }
+}
