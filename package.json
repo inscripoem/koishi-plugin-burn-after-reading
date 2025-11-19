@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-burn-after-reading",
   "description": "阅后即焚，群管插件，开启状态下会定时撤回用户发送的所有消息以保护隐私",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "contributors": [
     "inscripoem <changxuben@gmail.com>"
   ],
@@ -23,7 +23,10 @@
     "onebot"
   ],
   "koishi": {
-    "description": "阅后即焚，群管插件，开启状态下会定时撤回用户发送的所有消息以保护隐私",
+    "description": {
+      "en": "Burn After Reading, Group Admin Plugin, Recall all messages sent by users when enabled",
+      "zh": "阅后即焚，群管插件，开启状态下会定时撤回用户发送的所有消息以保护隐私"
+    },
     "link": "https://github.com/inscripoem/koishi-plugin-burn-after-reading",
     "service": {
       "require": "database"
