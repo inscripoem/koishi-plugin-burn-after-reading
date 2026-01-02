@@ -98,7 +98,7 @@ export function apply(ctx: Context, config: Config) {
       if (botRole === GroupRole.member) {
         return false
       }
-      return true 
+      return true
     } catch (error) {
       ctx.logger.warn('检查 bot 权限失败:', error)
       return false
@@ -121,7 +121,7 @@ export function apply(ctx: Context, config: Config) {
       return false
     }
   }
-  
+
 
   // 存储消息以便稍后批量撤回的辅助函数
   function storeMessageForRecall(session: Session, messageId: string, userId: string) {
@@ -320,7 +320,7 @@ export function apply(ctx: Context, config: Config) {
           userId: session.userId,
           guildId: session.guildId,
           channelId: session.channelId,
-          sentAt: now,
+          sentAt: new Date(),
         }).catch(err => ctx.logger.warn('存储通知消息失败:', err))
       }
     })
