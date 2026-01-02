@@ -311,7 +311,7 @@ export function apply(ctx: Context, config: Config) {
       scheduleExpiration(session.userId, session.guildId, session.channelId, expiresAt, session.bot)
 
       // Send notification and store the message ID for later recall
-      const notificationMsg = await session.send(`阅后即焚模式已开启。在关闭前或 ${config.maxDuration} 秒内发送的消息都将延迟 ${config.recallDelay} 秒批量撤回。`)
+      const notificationMsg = await session.send(`阅后即焚模式已开启。${config.maxDuration} 秒内发送的消息都将延迟 ${config.recallDelay} 秒批量撤回。若要手动触发，请发送“关闭阅后即焚”。`)
 
       // Store the notification message for recall
       if (notificationMsg && notificationMsg.length > 0) {
