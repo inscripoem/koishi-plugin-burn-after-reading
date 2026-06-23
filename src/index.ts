@@ -65,6 +65,26 @@ enum GroupRole {
 
 
 export function apply(ctx: Context, config: Config) {
+  // 存储每个用户过期定时器的 dispose 函数，key 为 `${userId}:${guildId}`
+  const expirationTimers = new Map<string, () => void>()
+
+  function getTimerKey(userId: string, guildId: string) {
+    return `${userId}:${guildId}`
+  }
+
+  function cancelExpirationTimer(userId: string, guildId: string) {
+    const key = getTimerKey(userId, guildId)
+    const dispose = expirationTimers.get(key)
+    if (dispose) {
+      expirationTimers.delete(key)
+      try {
+        dispose()
+      } catch (error) {
+        ctx.logger.warn('取消过期定时器失败:', error)
+      }
+    }
+  }
+
   // 扩展数据库表
   ctx.model.extend('burn_after_reading_users', {
     id: 'unsigned',
@@ -137,6 +157,8 @@ export function apply(ctx: Context, config: Config) {
 
   async function burnAfterReading(userId: string, guildId: string, channelId: string, bot: Bot) {
     try {
+      // 取消可能仍在排队的过期定时器，防止手动关闭后到了原定过期时间再次触发
+      cancelExpirationTimer(userId, guildId)
       // 从数据库中删除用户
       await ctx.database.remove('burn_after_reading_users', {
         userId,
@@ -199,9 +221,26 @@ export function apply(ctx: Context, config: Config) {
 
     if (delay <= 0) return
 
-    // 设置自动过期定时器，无需存储引用
-    ctx.setTimeout(async () => {
+    // 若已存在同 key 的定时器，先取消，避免重复登记
+    cancelExpirationTimer(userId, guildId)
+
+    const key = getTimerKey(userId, guildId)
+
+    // ctx.setTimeout 返回的就是 dispose 函数，必须保存以便手动关闭时能取消
+    const dispose = ctx.setTimeout(async () => {
+      // 定时器自然触发后，从 Map 中移除自身引用
+      expirationTimers.delete(key)
       try {
+        // 兜底校验：定时器触发时如果用户已经手动关闭（users 表中已无记录），直接跳过
+        const stillActive = await ctx.database.get('burn_after_reading_users', {
+          userId,
+          guildId,
+        })
+        if (stillActive.length === 0) {
+          ctx.logger.info(`用户 ${userId} 在群组 ${guildId} 的阅后即焚已被手动关闭，跳过过期处理`)
+          return
+        }
+
         ctx.logger.info(`用户 ${userId} 在群组 ${guildId} 的阅后即焚模式已过期`)
 
         // Send expiration notification and store the message ID for later recall
@@ -224,6 +263,8 @@ export function apply(ctx: Context, config: Config) {
         ctx.logger.warn('处理用户过期失败:', error)
       }
     }, delay)
+
+    expirationTimers.set(key, dispose)
   }
 
   ctx.command('阅后即焚', '销毁你未来的消息')
