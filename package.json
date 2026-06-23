@@ -7,7 +7,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/inscripoem/koishi-plugin-burn-after-reading"
+    "url": "git+https://github.com/inscripoem/koishi-plugin-burn-after-reading.git"
   },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
